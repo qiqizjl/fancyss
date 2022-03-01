@@ -71,4 +71,4 @@ do_backup(){
 cp_rules
 sync_v2ray_binary
 do_build
-do_backup
+# do_backup
