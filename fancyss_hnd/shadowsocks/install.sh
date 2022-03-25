@@ -55,11 +55,12 @@ get_ui_type(){
 	[ "${MODEL}" == "GT-AC5300" ] && local ROG_GTAC5300=1
 	[ "${MODEL}" == "GT-AX11000" ] && local ROG_GTAX11000=1
 	[ "${MODEL}" == "GT-AXE11000" ] && local ROG_GTAXE11000=1
+	[ "${MODEL}" == "GT-AX6000" ] && local ROG_GTAX6000=1
 	local KS_TAG=$(nvram get extendno|grep koolshare)
 	local EXT_NU=$(nvram get extendno)
 	local EXT_NU=$(echo ${EXT_NU%_*} | grep -Eo "^[0-9]{1,10}$")
 	local BUILDNO=$(nvram get buildno)
-	[ -z "${EXT_NU}" ] && EXT_NU="0" 
+	[ -z "${EXT_NU}" ] && EXT_NU="0"
 	# RT-AC86U
 	if [ -n "${KS_TAG}" -a "${MODEL}" == "RT-AC86U" -a "${EXT_NU}" -lt "81918" -a "${BUILDNO}" != "386" ];then
 		# RT-AC86U的官改固件，在384_81918之前的固件都是ROG皮肤，384_81918及其以后的固件（包括386）为ASUSWRT皮肤
@@ -75,13 +76,18 @@ get_ui_type(){
 		# GT-AX11000从386.2开始已经支持梅林固件，其UI是ASUSWRT
 		ROG_GTAX11000=0
 	fi
+	# GT-AXE11000
+	if [ "${MODEL}" == "GT-AXE11000" ] && [ "${FW_TYPE_CODE}" == "3" -o "${FW_TYPE_CODE}" == "4" ];then
+		# GT-AXE11000从386.5开始已经支持梅林固件，其UI是ASUSWRT
+		ROG_GTAXE11000=0
+	fi
 	# ROG UI
-	if [ "${ROG_GTAC5300}" == "1" -o "${ROG_RTAC86U}" == "1" -o "${ROG_GTAC2900}" == "1" -o "${ROG_GTAX11000}" == "1" -o "${ROG_GTAXE11000}" == "1" ];then
-		# GT-AC5300、RT-AC86U部分版本、GT-AC2900部分版本、GT-AX11000部分版本、GT-AXE11000全部版本，骚红皮肤
+	if [ "${ROG_GTAC5300}" == "1" -o "${ROG_RTAC86U}" == "1" -o "${ROG_GTAC2900}" == "1" -o "${ROG_GTAX11000}" == "1" -o "${ROG_GTAXE11000}" == "1" -o "${ROG_GTAX6000}" == "1" ];then
+		# GT-AC5300、RT-AC86U部分版本、GT-AC2900部分版本、GT-AX11000部分版本、GT-AXE11000官改版本， GT-AX6000 骚红皮肤
 		UI_TYPE="ROG"
 	fi
 	# TUF UI
-	if [ "${MODEL}" == "TUF-AX3000" ];then
+	if [ "${MODEL%-*}" == "TUF" ];then
 		# 官改固件，橙色皮肤
 		UI_TYPE="TUF"
 	fi
@@ -187,7 +193,7 @@ install_now(){
 	fi
 
 	# 对于jffs分区过小的插件，删除某些功能的二进制文件，比如RT-AX56U_V2的jffs只有15MB，所以移除一些功能
-	JFFS_TOTAL=$(df|grep -Ew "/jffs" | awk '{print $2}')
+	JFFS_TOTAL=$(df | grep -w "/jffs" | awk '{print $2}')
 	if [ "${JFFS_TOTAL}" -le "20000" ];then
 		echo_date "-------------------------------------------------------------"
 		echo_date "重要提示："
@@ -232,7 +238,7 @@ install_now(){
 
 	# 检测储存空间是否足够
 	echo_date "检测jffs分区剩余空间..."
-	SPACE_AVAL=$(df|grep jffs | awk '{print $4}')
+	SPACE_AVAL=$(df | grep -w "/jffs" | awk '{print $4}')
 	SPACE_NEED=$(du -s /tmp/shadowsocks | awk '{print $1}')
 	if [ "$SPACE_AVAL" -gt "$SPACE_NEED" ];then
 		echo_date 当前jffs分区剩余"$SPACE_AVAL" KB, 插件安装大概需要"$SPACE_NEED" KB，空间满足，继续安装！
