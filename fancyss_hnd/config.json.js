@@ -1,8 +1,8 @@
 {
-"build_date":"2022-03-26_00:15:35",
+"build_date":"2022-03-26_00:34:40",
 "description":"科学上网",
 "home_url":"Module_shadowsocks.asp",
-"md5":"a5543efa9a1ea908668b223ce9b21a30",
+"md5":"cec60826088c5c03df227fa98bf88206",
 "name":"shadowsocks",
 "tar_url": "https://raw.githubusercontent.com/hq450/fancyss/master/fancyss_hnd/shadowsocks.tar.gz", 
 "title":"科学上网",
